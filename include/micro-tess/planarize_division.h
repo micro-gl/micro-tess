@@ -25,6 +25,7 @@
 #include "std_rebind_allocator.h"
 #include "half_edge.h"
 #include "dynamic_array.h"
+#include "triangles.h"
 
 #if DEBUG_PLANAR==true
 #include <stdexcept>
@@ -58,12 +59,15 @@ namespace microtess {
     };
 
     /**
-     * tesselate any polygon or multi polygon
-     * @tparam number
-     * @tparam container_vertices
-     * @tparam container_indices
-     * @tparam container_boundary
-     * @tparam computation_allocator
+     * Tessellate any polygon or multi polygon
+     *
+     * todo: create an optional wway to use faster real pool allocators for fast
+     *
+     * @tparam number the number type of the vertices
+     * @tparam container_vertices the container type for output vertices
+     * @tparam container_indices the container type for output indices
+     * @tparam container_boundary the container type for output boundary info
+     * @tparam computation_allocator computation memory allocator
      */
     template<typename number,
             class container_vertices,
