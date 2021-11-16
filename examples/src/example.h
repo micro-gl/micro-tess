@@ -19,7 +19,7 @@ void example_run(canvas_type * canvas, int w, int h,
 
     SDL_Init(SDL_INIT_VIDEO);
 
-    window = SDL_CreateWindow("Micro{gl} Example",
+    window = SDL_CreateWindow("Micro{tess} Example",
                               SDL_WINDOWPOS_UNDEFINED,
                               SDL_WINDOWPOS_UNDEFINED,
                               w, h, 0);

@@ -7,6 +7,7 @@
 #include <micro-tess/ear_clipping_triangulation.h>
 #include <micro-tess/triangles.h>
 #include <micro-tess/static_array.h>
+#include <micro-tess/std_rebind_allocator.h>
 #include <vector>
 
 #define W 640*1
@@ -15,15 +16,12 @@
 float t = 0;
 
 template<typename item_type>
-using static_arr = static_array<item_type, 100>;
-
-template<typename item_type>
-//using container = static_arr<item_type>;
-using container = dynamic_array<item_type>;
+using container = static_array<item_type, 100>;
+//using container = dynamic_array<item_type>;
 //using container = std::vector<item_type>;
 
 template <typename number>
-container<vertex2<number>> poly_rect() {
+container<microtess::vec2<number>> poly_rect() {
     using il = std::initializer_list<vertex2<number>>;
     using vertex=vertex2<number>;
     vertex p0 = {100,100};
@@ -155,9 +153,7 @@ int main() {
 
     using Bitmap24= bitmap<coder::RGB888_PACKED_32>;
     using Canvas24= canvas<Bitmap24>;
-    using Texture24= sampling::texture<Bitmap24, sampling::texture_filter::NearestNeighboor>;
     sampling::flat_color<> color_red{{255,0,0,255}};
-    sampling::flat_color<> color_black{{0,0,0,255}};
 
     Canvas24 canvas(W, H);
 
@@ -165,19 +161,28 @@ int main() {
         using index = unsigned int;
 
         //polygon[1].x = 140 + 20 +  t;
-        microtess::triangles::indices type;
-        container<index> indices;
-        container<boundary_info> boundary_buffer;
+        // output indices type
+        microtess::triangles::indices output_type;
+        // output indices container
+        container<index> output_indices;
+        // output boundary info container
+        container<boundary_info> output_boundary_buffer;
+        // allocator for internal computation
+        microtess::std_rebind_allocator<> allocator;
 
-        using ear = microtess::ear_clipping_triangulation<number,
+        // define ear-clipper
+        using ear = microtess::ear_clipping_triangulation<
+                number,
                 container<index>,
-                container<boundary_info>>;
+                container<boundary_info>,
+                microtess::std_rebind_allocator<>>;
 
         ear::compute(polygon.data(),
                      polygon.size(),
-                     indices,
-                     &boundary_buffer,
-                     type);
+                     output_indices,
+                     &output_boundary_buffer,
+                     output_type,
+                     allocator);
 
         // draw triangles batch
         canvas.clear({255,255,255,255});
@@ -186,10 +191,10 @@ int main() {
                 matrix_3x3<number>::identity(),
                 polygon.data(),
                 (vertex2<number> *)nullptr,
-                indices.data(),
-                boundary_buffer.data(),
-                indices.size(),
-                type,
+                output_indices.data(),
+                output_boundary_buffer.data(),
+                output_indices.size(),
+                output_type,
                 122);
 
         // draw triangulation
@@ -197,9 +202,9 @@ int main() {
                 {0,0,0,255},
                 matrix_3x3<number>::identity(),
                 polygon.data(),
-                indices.data(),
-                indices.size(),
-                type,
+                output_indices.data(),
+                output_indices.size(),
+                output_type,
                 255);
     };
 
