@@ -1760,7 +1760,7 @@ namespace microtess {
 
         static number robust_dot(const vertex &u, const vertex &v) {
             int f1=1, f2=1;
-            bool skip=u.x>=1 || u.y>=1 || v.x>=1 || v.y>=1;
+            bool skip=u.x>=number(1) || u.y>=number(1) || v.x>=number(1) || v.y>=number(1);
 //            skip=false;
             if(!skip) {
                 number w_u=u.x<0?(-u.x):u.x;
