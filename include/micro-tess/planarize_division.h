@@ -35,9 +35,9 @@
                                          +"| count # "+std::to_string(count));
 #define throw_regular(msg) throw std::runtime_error(msg);
 #else
-#define throw_debug(msg, poly, edge, count);
-#define throw_regular(msg);
-#define string_debug(msg);
+#define throw_debug(msg, poly, edge, count)
+#define throw_regular(msg)
+#define string_debug(msg)
 #endif
 
 namespace microtess {
@@ -239,6 +239,7 @@ namespace microtess {
         struct location_codes {
             int left_wall, bottom_wall, right_wall, top_wall;
             int array[4];
+            location_codes()=default;
             void fill() {
                 array[indexOfClass(point_class_with_trapeze::left_wall)]=left_wall;
                 array[indexOfClass(point_class_with_trapeze::bottom_wall)]=bottom_wall;
@@ -260,7 +261,8 @@ namespace microtess {
                 if(point==trapeze.left_bottom->origin->coords ||
                             point==trapeze.right_bottom->origin->coords) bottom_wall=0; // this may be more robust and accurate for boundary vertices
             }
-            void compute_codes_from_class(const vertex& v, const point_class_with_trapeze & classs, const trapeze_t & trapeze) {
+            void compute_codes_from_class(const vertex& v, const point_class_with_trapeze & classs,
+                                          const trapeze_t & trapeze) {
                 if(classs==point_class_with_trapeze::outside || classs==point_class_with_trapeze::unknown)
                     compute_location_codes(v, trapeze);
                 else { // it is in closure
@@ -276,29 +278,19 @@ namespace microtess {
                 }
             }
             static point_class_with_trapeze classOfIndex(int index) {
-                if(index==0)
-                    return point_class_with_trapeze::left_wall;
-                else if(index==1)
-                    return point_class_with_trapeze::bottom_wall;
-                else if(index==2)
-                    return point_class_with_trapeze::right_wall;
-                else if(index==3)
-                    return point_class_with_trapeze::top_wall;
-                else
-                    return point_class_with_trapeze::unknown;
+                if(index==0) return point_class_with_trapeze::left_wall;
+                else if(index==1) return point_class_with_trapeze::bottom_wall;
+                else if(index==2) return point_class_with_trapeze::right_wall;
+                else if(index==3) return point_class_with_trapeze::top_wall;
+                else return point_class_with_trapeze::unknown;
             }
             static int indexOfClass(point_class_with_trapeze cls) {
                 switch (cls) {
-                    case point_class_with_trapeze::left_wall:
-                        return 0;
-                    case point_class_with_trapeze::bottom_wall:
-                        return 1;
-                    case point_class_with_trapeze::right_wall:
-                        return 2;
-                    case point_class_with_trapeze::top_wall:
-                        return 3;
-                    default:
-                        return 0;
+                    case point_class_with_trapeze::left_wall: return 0;
+                    case point_class_with_trapeze::bottom_wall: return 1;
+                    case point_class_with_trapeze::right_wall: return 2;
+                    case point_class_with_trapeze::top_wall: return 3;
+                    default: return 0;
                 }
             }
             bool isBoundaryVertex() {
@@ -456,6 +448,7 @@ namespace microtess {
                 }
                 switch (quality) {
 
+                    case tess_quality::worst_visuals_but_fast_and_constant_memory:
                     case tess_quality::fine:
                     {
                         const auto *start= trapeze.left_top;
@@ -696,8 +689,10 @@ namespace microtess {
         }
 
         static auto infer_trapeze(const half_edge_face *face) -> trapeze_t {
-            if(face==nullptr || face->edge==nullptr)
-                throw_regular(string_debug("infer_trapeze()::trying to infer a trapeze of a probably merged/deleted face !!!"));
+            if(face==nullptr || face->edge==nullptr) {
+                throw_regular(string_debug(
+                        "infer_trapeze()::trying to infer a trapeze of a probably merged/deleted face !!!"))
+            }
             auto * e = face->edge;
             const auto * e_end = face->edge;
             trapeze_t trapeze;
@@ -886,7 +881,7 @@ namespace microtess {
                     compare_y=false;reverse_direction=false;
                     break;
                 default:
-                    throw_regular(string_debug("try_insert_vertex_on_trapeze_boundary_at:: wall class is not boundary !!!"));
+                    throw_regular(string_debug("try_insert_vertex_on_trapeze_boundary_at:: wall class is not boundary !!!"))
                     return nullptr;
             }
             const auto * e_end_ref = e_end;
@@ -901,7 +896,7 @@ namespace microtess {
                     return try_split_edge_at(v, e_start, pool);
                 e_start=e_start->next;
             } while(e_start!=e_end_ref);
-            throw_regular(string_debug("try_insert_vertex_on_trapeze_boundary_at:: didnt find where !!!"));
+            throw_regular(string_debug("try_insert_vertex_on_trapeze_boundary_at:: didnt find where !!!"))
             return nullptr;
         }
 
@@ -1026,8 +1021,9 @@ namespace microtess {
             bool a_is_boundary_vertex=a_class==point_class_with_trapeze::boundary_vertex;
             bool a_is_interior=a_class==point_class_with_trapeze::strictly_inside;
             bool a_is_outside=a_class==point_class_with_trapeze::outside || a_class==point_class_with_trapeze::unknown;
-            if(a_is_outside)
-                throw_regular(string_debug("compute_conflicting_edge_intersection_against_trapeze():: a outside"));
+            if(a_is_outside) {
+                throw_regular(string_debug("compute_conflicting_edge_intersection_against_trapeze():: a outside"))
+            }
             location_codes codes_a, codes_b;
             codes_a.compute_location_codes(a, trapeze); codes_a.fill();
             codes_b.compute_location_codes(b, trapeze); codes_b.fill();
@@ -1103,7 +1099,7 @@ namespace microtess {
             }
 
             if(trapeze.isDeg()) {
-                int a=5;
+                int _debugggg=4;
             }
             // if we got here, vertex (a) is in the closure and vertex (b) is outside/exterior.
             // the strategy is to behave like cohen-sutherland
@@ -1169,7 +1165,7 @@ namespace microtess {
                 case point_class_with_trapeze::bottom_wall: return (a.x<=b.x);
                 case point_class_with_trapeze::top_wall: return (b.x<=a.x);
                 default: {// this might be problematic, we may need to report error
-                    throw_regular(string_debug("is_a_before_or_equal_b_on_same_boundary:: unrecognized boundary"));
+                    throw_regular(string_debug("is_a_before_or_equal_b_on_same_boundary:: unrecognized boundary"))
                     return false;
                 }
             }
@@ -1314,7 +1310,7 @@ namespace microtess {
                 if(iter->face==face) return iter;
                 iter=iter->twin->next;
             } while(iter!=end);
-            throw_regular(string_debug("locate_half_edge_of_face_rooted_at_vertex::not found face !!!"));
+            throw_regular(string_debug("locate_half_edge_of_face_rooted_at_vertex::not found face !!!"))
             return nullptr;
         }
 
@@ -1362,7 +1358,7 @@ namespace microtess {
                 }
                 iter=iter->twin->next;
             } while(iter!=end);
-            throw_regular(string_debug("locate_face_of_a_b():: could not locate !!"));
+            throw_regular(string_debug("locate_face_of_a_b():: could not locate !!"))
             return iter;
             return nullptr;
         }
@@ -1465,7 +1461,7 @@ namespace microtess {
 
             // there have to be top and bottom because v was strictly inside the wall
             if(top_edge== nullptr || bottom_edge== nullptr) {
-                throw_regular(string_debug("handle_face_merge::have not found bottom or top edge !!!"));
+                throw_regular(string_debug("handle_face_merge::have not found bottom or top edge !!!"))
                 return;
             }
 
@@ -1500,7 +1496,7 @@ namespace microtess {
                         if(trap_right.left_bottom!=candidate_edge->next) continue;
                     }
                     if(top_edge==bottom_edge) {
-                        int a=0;
+                        int _debuggggg=0;
                     }
                     ////
                     // perform test #3
@@ -1656,8 +1652,8 @@ namespace microtess {
                     b_tag = edge_status.point_of_interest;
                     point_class_with_trapeze class_b_tag = edge_status.class_of_interest_point;
                     if(class_b_tag==point_class_with_trapeze::outside) {
-                        throw_debug(string_debug("insert_edge():: class_b_tag==point_class_with_trapeze::outside !!"),
-                                    poly.id, edge, count);
+                        throw_debug(string_debug("insert_edge():: class_b_tag==point_class_with_trapeze::outside !!"),\
+                                    poly.id, edge, count)
                         return;
                     }
                     id_a=b_tag_planar ? b_tag_planar->id : -1;
@@ -1685,9 +1681,9 @@ namespace microtess {
                     if(candidate_merge&&(APPLY_MERGE))
                         handle_face_merge(a_planar);
 
-                    if(true&&count>=MAX_ITERATIONS){
+                    if(count >= MAX_ITERATIONS){
                         int aaaaa=0;
-                        throw_debug(string_debug("insert_edge():: seems like infinite looping !!"),
+                        throw_debug(string_debug("insert_edge():: seems like infinite looping !!"),\
                                     poly.id, edge, count)
                     }
                     // if b'==b we are done. note, that b_tag_planar->coords might NOT equal b', BUT
@@ -1698,11 +1694,10 @@ namespace microtess {
                         break;
                     }
                     if(last_edge && b==b_tag) {
-                        if(b_tag_planar->head_id!=poly.id)
-                            throw_debug(string_debug("last vertex didn't land on first vertex of polygon!!"),
+                        if(b_tag_planar->head_id!=poly.id) {
+                            throw_debug(string_debug("last vertex didn't land on first vertex of polygon!!"), \
                                         poly.id, edge, count)
-                        else
-                            break;
+                        } else break;
                     }
                     // ITERATION STEP, therefore update:
                     // 1. now iterate on the sub-line (b', b), by assigning a=b'
@@ -1794,7 +1789,7 @@ namespace microtess {
                 case point_class_with_trapeze::bottom_wall: {*start=trapeze.left_bottom;*end=trapeze.right_bottom;return;}
                 case point_class_with_trapeze::right_wall: {*start=trapeze.right_bottom;*end=trapeze.right_top;return;}
                 case point_class_with_trapeze::top_wall: {*start=trapeze.right_top;*end=trapeze.left_top;return;}
-                default: {throw_regular(string_debug("wall_endpoints():: invalid wall"));return;}
+                default: {throw_regular(string_debug("wall_endpoints():: invalid wall")) return;}
             }
         }
 
