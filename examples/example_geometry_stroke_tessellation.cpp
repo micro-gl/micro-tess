@@ -96,7 +96,7 @@ container<vertex2<number>> path_tri() {
 }
 
 template <typename number>
-container<vertex2<number>> path_rect() {
+container<vertex2<number>> path_1() {
     using il = std::initializer_list<vertex2<number>>;
     vertex2<number> p0 = {100, 200};
     vertex2<number> p1 = {420, 100};
@@ -190,7 +190,7 @@ int main() {
     };
 
     auto render = [&](void*, void*, void*) -> void {
-        static auto path = path_rect<number>();
+        static auto path = path_1<number>();
 //        static auto path = path_rect2<number>();
 //        static auto path = path_tri<number>();
 //        static auto path = path_2<number>();
