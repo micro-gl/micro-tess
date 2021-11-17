@@ -8,11 +8,6 @@
 #include <microgl/samplers/texture.h>
 #include <microgl/samplers/flat_color.h>
 
-// TODO: put the micro-tess version
-#define TEST_ITERATIONS 1
-#define W 640*1
-#define H 640*1
-
 template <typename number>
 vertex3<number>* bi_cubic_1(){
 
@@ -47,7 +42,7 @@ int main() {
     using Texture24= sampling::texture<bitmap<coder::RGB888_ARRAY>, sampling::texture_filter::NearestNeighboor>;
     sampling::flat_color<> color_grey{{222,222,222,255}};
 
-    Canvas24 canvas(W, H);
+    Canvas24 canvas(640, 480);
 
     auto img_2 = Resources::loadImageFromCompressedPath("images/uv_512.png");
     Texture24 tex_uv{new bitmap<coder::RGB888_ARRAY>(img_2.data, img_2.width, img_2.height)};
