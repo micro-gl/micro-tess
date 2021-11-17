@@ -18,16 +18,15 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ========================================================================================*/
 #pragma once
-#define DEBUG_PLANAR false
-#define MAX_ITERATIONS 200
-#define APPLY_MERGE true
+
+//#define MICROTESS_PLANAR_DEBUG_MESSAGES
 
 #include "std_rebind_allocator.h"
 #include "half_edge.h"
 #include "dynamic_array.h"
 #include "triangles.h"
 
-#if DEBUG_PLANAR==true
+#ifdef MICROTESS_PLANAR_DEBUG_MESSAGES
 #include <stdexcept>
 #include <string>
 #define string_debug(msg) std::string(msg)
@@ -45,8 +44,14 @@ namespace microtess {
 
     enum class fill_rule { non_zero, even_odd };
     enum class tess_quality {
+        // the worst algorithm visually, as it will create 2 triangles per
+        // trapeze, BUT let's not forget each trapeze is an approximation,
+        // therefore cracks will show up in many cases. Also, this will have
+        // 2 triangles per trapeze so this is the most memory efficient
+        worst_visuals_but_fast_and_constant_memory,
         // the fastest algorithm, but nay produce zero area triangles on the
-        // boundary. might be a problem if you are using SDF based AA
+        // boundary, because it fan triangulates the approximate trapezes.
+        // might be a problem if you are using SDF based AA
         fine,
         // a bit slower and might be susceptible for other issues, but produces
         // triangles out of each trapeze in a way similar to ear clipping, this
@@ -59,7 +64,30 @@ namespace microtess {
     };
 
     /**
-     * Tessellate any polygon or multi polygon
+     * Tessellate any polygon or multi polygon by creating planar sub-divisions.
+     *
+     * NOTES:
+     * - Supports **Fill Rules** - `even-odd` and `non-zero`
+     * - Numerically stable. Can tessellate with any number precision: `Q` (fixed point), `float` and `double`
+     * - Includes geometric optimizations
+     * - Allocator-aware so you can use it in any computer memory model
+     * - 3 Configurable tessellation **qualities**
+     * - Debuggable messages flag with macro definition (this will require stdlib)
+     * - If randomization is incorporated at the algorithm edge-wise, this is the fastest algorithm on
+     *   average with O(n*log(n)) performance for any type of polygons and multi-polygons. Currently, the
+     *   per edge randomization was disabled because it might make the implementation less stable, but I might
+     *   re-add it with a flag. Also, partial randomization can be accomplished by randomizing the polygon.
+     *
+     * DEBUGGING PROBLEMS:
+     * If you are seeing bugs with the tessellation, try the following
+     * - Set `APPLY_MERGE` template argument to `false`, this optimization might be producing problems.
+     * - Try increasing **`MAX_ITERATIONS`** template argument. Your algorithm might need more iterations if
+     *   one of your polygons is huge. This argument is a fail safe way to exit an infinite loop if one shoudl occur.
+     * - Add `#define MICROTESS_PLANAR_DEBUG_MESSAGES` before all other includes. This should give messages and throw
+     * exceptions when the algorithm 'feels' things are wrong, so this can give you info.
+     * - Try increasing the precision of the `number` type of the vertices.
+     *   - If using `Q`, try increasing precision bits. Q<8> -> Q<15>
+     *   - If using `float`, then try `double` etc..
      *
      * todo: create an optional wway to use faster real pool allocators for fast
      *
@@ -68,12 +96,15 @@ namespace microtess {
      * @tparam container_indices the container type for output indices
      * @tparam container_boundary the container type for output boundary info
      * @tparam computation_allocator computation memory allocator
+     * @tparam APPLY_MERGE apply geometric optimization technique
+     * @tparam MAX_ITERATIONS max number of iterations to avoid infinite loop
      */
     template<typename number,
             class container_vertices,
             class container_indices,
             class container_boundary,
-            class computation_allocator=microtess::std_rebind_allocator<>>
+            class computation_allocator=microtess::std_rebind_allocator<>,
+            bool APPLY_MERGE=true, unsigned MAX_ITERATIONS=200>
     class planarize_division {
     public:
         using vertex = microtess::vec2<number>;
@@ -1789,6 +1820,10 @@ namespace microtess {
             class container_vertices,
             class container_indices,
             class container_boundary,
-            class computation_allocator>
-    int planarize_division<number, container_vertices, container_indices, container_boundary, computation_allocator>::id_a(-1);
+            class computation_allocator,
+            bool APPLY_MERGE,
+            unsigned MAX_ITERATIONS>
+    int planarize_division<number, container_vertices, container_indices,
+                            container_boundary, computation_allocator,
+                            APPLY_MERGE, MAX_ITERATIONS>::id_a(-1);
 }
