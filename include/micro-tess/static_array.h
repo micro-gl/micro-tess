@@ -144,7 +144,7 @@ public:
     }
     index size() const { return _current; }
     constexpr index capacity() const { return N; }
-    allocator_type get_allocator() { return allocator_type(); }
+    allocator_type get_allocator() const { return allocator_type(); }
 
     T* begin() { return _data; }
     T* end() { return _data + _current; }

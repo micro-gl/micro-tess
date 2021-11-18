@@ -125,7 +125,7 @@ int main() {
 
     // microgl drawing setup START
     using index = unsigned int;
-    using Canvas24= canvas<bitmap<RGB888_PACKED_32>>;
+    using Canvas24 = canvas<bitmap<RGB888_PACKED_32>, CANVAS_OPT_64_BIT_FREE>;
     sampling::flat_color<> color_red {{255,0,255,255}};
     Canvas24 canvas(640, 480);
     // microgl drawing setup END
