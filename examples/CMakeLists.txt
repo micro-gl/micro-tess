@@ -16,24 +16,23 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin")
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 find_package(SDL2 REQUIRED)
-find_package(microgl CONFIG REQUIRED)
+find_package(microgl CONFIG)
 
-if(SDL2_FOUND)
+if(SDL2_FOUND AND microgl_FOUND)
     # micro-tess target should be because this file is included in the parent folder
     set(libs ${SDL2_LIBRARY} microgl::microgl micro-tess)
     set(SOURCES
-            example_draw_bezier_patch.cpp
-            example_draw_bezier_patch_raw.cpp
-            example_draw_path_fill.cpp
-            example_draw_path_stroke.cpp
-            example_geometry_ear_clipping.cpp
-            example_geometry_monotone_triangulation.cpp
-            example_geometry_fan_triangulation.cpp
-            example_geometry_complex_to_planar_subdivision.cpp
-            example_geometry_stroke_tessellation.cpp
-            example_geometry_stroke_dash_tessellation.cpp
-            example_geometry_elliptic_arc_divider.cpp
-            example_geometry_bezier_curve_divider.cpp
+            example_bezier_patch.cpp
+            example_path_fill.cpp
+            example_path_stroke.cpp
+            example_ear_clipping.cpp
+            example_monotone_triangulation.cpp
+            example_fan_triangulation.cpp
+            example_planar_subdivision.cpp
+            example_stroke_tessellation.cpp
+            example_stroke_dash_tessellation.cpp
+            example_elliptic_arc_divider.cpp
+            example_bezier_curve_divider.cpp
             )
 
     set(SOURCES_SHARED
@@ -60,7 +59,10 @@ if(SDL2_FOUND)
                 ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/assets
                 $<TARGET_FILE_DIR:${testname}>/assets)
     endforeach( testsourcefile ${SOURCES} )
-
+elseif()
+    message(Couldn't find some libs\n)
+    message(sdl 2: ${SDL2_FOUND})
+    message(microgl: ${microgl_FOUND})
 endif()
 
 # newer clion does not make the binary executable location the current working dir,
