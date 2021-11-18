@@ -24,7 +24,7 @@ if(SDL2_FOUND)
     set(SOURCES
             example_draw_bezier_patch.cpp
             example_draw_bezier_patch_raw.cpp
-            example_draw_path.cpp
+            example_draw_path_fill.cpp
             example_draw_path_stroke.cpp
             example_geometry_ear_clipping.cpp
             example_geometry_monotone_triangulation.cpp

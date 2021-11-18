@@ -6,17 +6,23 @@
 #include <microgl/bitmaps/bitmap.h>
 #include <microgl/pixel_coders/RGB888_PACKED_32.h>
 #include <microgl/samplers/flat_color.h>
-#include <vector>
 
-#define W 640*1
-#define H 640*1
+#include <micro-tess/path.h>
+#include <micro-tess/std_rebind_allocator.h>
+#include <micro-tess/dynamic_array.h>
+#include <micro-tess/static_array.h>
+#include <vector>
 
 using microtess::path;
 float t = 0;
 
+template<class item, class fake_allocator>
+using static_array_with_fake_allocator = static_array<item, 10000, fake_allocator>;
+
 template<typename number>
-//using path_t = path<number, std::vector>;
-using path_t = path<number, dynamic_array>;
+//using path_t = path<number, static_array_with_fake_allocator, std_rebind_allocator<>>;
+//using path_t = path<number, std::vector, std_rebind_allocator<>>;
+using path_t = path<number, dynamic_array, std_rebind_allocator<>>;
 
 template <typename number>
 path_t<number> path_star() {
@@ -64,19 +70,17 @@ path_t<number> path_arc_animation() {
     path_t<number> path{};
     int div=32; //4
     path.arc({200,200}, 100,
-             math::deg_to_rad(0.0f),
-             math::deg_to_rad(360.0f),
+             microgl::math::deg_to_rad(0.0f),
+             microgl::math::deg_to_rad(360.0f),
              false, div).closePath();
-
     path.arc({250,200}, 50,
-             math::deg_to_rad(0.0f),
-             math::deg_to_rad(360.0f),
-             true, div).closePath();
-t+=1.82f;
-//    t=120.539963f;//819999992f;//-0.01f;
-////t=26.0399914;
-    path.moveTo({150,150});
-    path.arc({150+0,150}, 50+t-0,
+             microgl::math::deg_to_rad(0.0f),
+             microgl::math::deg_to_rad(360.0f),
+             false, div).closePath();
+    t=100;
+//    t+=1.82f;
+    path.moveTo({150,150})
+        .arc({150+0,150}, 50+t-0,
              math::deg_to_rad(0.0f),
              math::deg_to_rad(360.0f),
              false, div);//.closePath();
@@ -111,31 +115,55 @@ path_t<number> path_test() {
 }
 
 int main() {
-//    using number = float;
+    using number = float;
 //    using number = double;
 //    using number = Q<15, long long>;
-    using number = Q<8, int32_t, int64_t, 0>;
+//    using number = Q<8, int32_t, int64_t, 0>;
 //    using number = Q<2, int64_t>;
 //    using number = Q<4, int32_t>;
 //    using number = Q<12>;
 
+    // microgl drawing setup START
+    using index = unsigned int;
     using Canvas24= canvas<bitmap<RGB888_PACKED_32>>;
     sampling::flat_color<> color_red {{255,0,255,255}};
+    Canvas24 canvas(640, 480);
+    // microgl drawing setup END
 
-    Canvas24 canvas(W, H);
+    constexpr auto debug = true;
 
     auto render_path = [&](path_t<number> & path) {
-        canvas.clear({255, 255, 255, 255});
-        canvas.drawPathFill<blendmode::Normal, porterduff::FastSourceOverOnOpaque, false, true>(
-                color_red,
-                matrix_3x3<number>::identity(),
-                path,
+
+        // Algorithm compute
+        const auto & buffers= path.tessellateFill<>(
                 microtess::fill_rule::even_odd,
                 microtess::tess_quality::prettier_with_extra_vertices,
-//            tessellation::tess_quality::better,
-                255
-        );
+                true, debug);
 
+        canvas.clear({255, 255, 255, 255});
+        canvas.drawTriangles<blendmode::Normal, porterduff::FastSourceOverOnOpaque, true>(
+                color_red,
+                matrix_3x3<number>::identity(),
+                buffers.output_vertices.data(),
+                static_cast<vertex2<number> *>(nullptr),
+                buffers.output_indices.data(),
+                buffers.output_boundary.data(),
+                buffers.output_indices.size(),
+                buffers.output_indices_type,
+                255);
+
+        if(debug) {
+            canvas.drawTrianglesWireframe(
+                   {0, 0, 0, 255}, matrix_3x3<number>::identity(),
+                   buffers.output_vertices.data(),
+                   buffers.output_indices.data(),
+                   buffers.output_indices.size(),
+                   buffers.output_indices_type,
+                   40);
+            for (index ix = 0; ix < buffers.DEBUG_output_trapezes.size(); ix+=4)
+                canvas.drawWuLinePath<number>({0, 0, 0, 255},
+                                 &buffers.DEBUG_output_trapezes[ix], 4, true);
+        }
     };
 
     auto render = [&](void*, void*, void*) -> void {
