@@ -15,10 +15,10 @@ set(CMAKE_CXX_FLAGS_RELEASE " -fno-rtti -fno-exceptions -fno-unwind-tables \
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin")
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-find_package(SDL2 REQUIRED)
+find_package(SDL2)
 find_package(microgl CONFIG)
 
-if(SDL2_FOUND AND microgl_FOUND)
+if(DEFINED SDL2_FOUND AND DEFINED microgl_FOUND)
     # micro-tess target should be because this file is included in the parent folder
     set(libs ${SDL2_LIBRARY} microgl::microgl micro-tess)
     set(SOURCES
@@ -48,10 +48,8 @@ if(SDL2_FOUND AND microgl_FOUND)
         include_directories("${PROJECT_SOURCE_DIR}/libs/stb_image")
         include_directories("${PROJECT_BINARY_DIR}")
         include_directories("${PROJECT_SOURCE_DIR}/libs/stb_image")
-#        include_directories("/usr/local/include/microgl/../")
 
         add_executable( ${testname} ${testsourcefile} ${SOURCES_SHARED} )
-        #        add_executable( ${testname} ${testsourcefile}  )
         # Make sure YourLib is linked to each app
         target_link_libraries( ${testname} ${libs} )
         # this is redundant, as target file dir is always delegated to CMAKE_RUNTIME_OUTPUT_DIRECTORY
