@@ -73,12 +73,12 @@ path_t<number> path_arc_animation() {
              microgl::math::deg_to_rad(0.0f),
              microgl::math::deg_to_rad(360.0f),
              false, div).closePath();
-    path.arc({250,200}, 50,
-             microgl::math::deg_to_rad(0.0f),
-             microgl::math::deg_to_rad(360.0f),
-             false, div).closePath();
-    t=100;
-//    t+=1.82f;
+//    path.arc({250,200}, 50,
+//             microgl::math::deg_to_rad(0.0f),
+//             microgl::math::deg_to_rad(360.0f),
+//             false, div).closePath();
+//    t=100;
+    t+=1.82f;
     path.moveTo({150,150})
         .arc({150+0,150}, 50+t-0,
              math::deg_to_rad(0.0f),
