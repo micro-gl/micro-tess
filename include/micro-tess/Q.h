@@ -117,11 +117,15 @@ public:
     q_ref operator *=(const_ref q) {
         multiply<inferred_mul_strategy>(q.value()); return *this;
     }
+    q_ref operator *=(unsigned val) {_value *= val; return *this;}
+    q_ref operator *=(signed val) {_value *= val; return *this;}
     q_ref operator /=(const_ref q) {
         const inter_integer inter=(inter_integer(_value)) << P;
         _value = inter/(inter_integer)q.value();
         return *this;
     }
+    q_ref operator /=(unsigned val) {_value /= val; return *this;}
+    q_ref operator /=(signed val) {_value /= val; return *this;}
     q_ref operator +=(const_ref q) { _value+=q.value(); return *this; }
     q_ref operator -=(const_ref q) { _value-=q.value(); return *this; }
 
@@ -129,7 +133,11 @@ public:
     Q operator +(const_ref q) const { Q temp{*this}; temp+=q; return temp; }
     Q operator -(const_ref q) const { Q temp{*this}; temp-=q; return temp; }
     Q operator *(const_ref q) const { Q temp{*this}; temp*=q; return temp; }
+    Q operator *(unsigned val) const { Q temp{*this}; temp._value*=val; return temp; }
+    Q operator *(signed val) const { Q temp{*this}; temp._value*=val; return temp; }
     Q operator /(const_ref q) const { Q temp{*this}; temp/=q; return temp; }
+    Q operator /(unsigned val) const { Q temp{*this}; temp._value/=val; return temp; }
+    Q operator /(signed val) const { Q temp{*this}; temp._value/=val; return temp; }
 
     // negate
     Q operator -() const { return Q{0}.updateValue(-_value); }
