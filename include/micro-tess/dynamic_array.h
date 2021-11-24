@@ -81,6 +81,12 @@ class dynamic_array {
 public:
     using value_type = T;
     using allocator_type = Alloc;
+    using reference = value_type &;
+    using const_reference = const value_type &;
+    using pointer = value_type *;
+    using const_pointer = const value_type *;
+    using iterator = pointer;
+    using const_iterator = const_pointer;
     using index = unsigned int;
     using type = T;
     using uint = unsigned int;
@@ -141,12 +147,9 @@ public:
         bool avoid = new_cap <= capacity();
         if(avoid) return;
         T * _new_data = _alloc.allocate(new_cap);
-        // construct default objects for validity
-        for (int ix = 0; ix < new_cap; ++ix)
-            new (_new_data + ix) T();
-        // move old objects
+        // move-construct old objects
         for (int ix = 0; ix < size(); ++ix)
-            _new_data[ix] = dynamic_array_traits::move(_data[ix]);
+            new (_new_data + ix) T(dynamic_array_traits::move(_data[ix]));
         _cap = new_cap;
         // no need to destruct because the items were moved
         if(_data!=nullptr) _alloc.deallocate(_data);
@@ -178,6 +181,9 @@ public:
             _alloc.deallocate(_data, capacity());
             // move everything from other
             _data = other._data;
+            _current = other._current;
+            _cap = other._cap;
+            // no need to de-allocate because we stole the memory
             other._data=nullptr;
             other._cap=0;
             other._current=0;
@@ -186,21 +192,15 @@ public:
                 clear(); // clear and destruct current objects
                 _alloc.deallocate(_data, capacity()); // de allocate the chunk
                 _data = _alloc.allocate(other.size()); // create new chunk
-                // construct default objects for validity
-                for (int ix = 0; ix < other.size(); ++ix)
-                    new (_data + ix) T();
             }
             // move other items into current memory
             for (int ix = 0; ix < other.size(); ++ix)
-                _data[ix] = dynamic_array_traits::move(other[ix]);
-            for (int ix = other.size(); ix < capacity(); ++ix)
-                _data[ix] = T();
+                new (_data + ix) T(dynamic_array_traits::move(other[ix]));
             // no need to destruct other's items
-            other._current=0;
+            _current = other._current;
+            _cap = other._cap;
+            // different allocators, we do not de-allocate the other array.
         }
-
-        _current = other._current;
-        _cap = other._cap;
 
         return (*this);
     }
@@ -215,17 +215,14 @@ public:
         const auto copy_size = old_size<new_size ? old_size : new_size;
 
         T * _new_data = _alloc.allocate(new_size);
-        // construct default objects for validity
-        for (int ix = 0; ix < new_size; ++ix)
-            new (_new_data + ix) T();
         // move all previous objects into new location,
-        // therefore we do not need to destruct because we move
+        // therefore we do not need to destruct because we move from same allocator
         for (index ix = 0; ix < copy_size; ++ix)
-            _new_data[ix] = dynamic_array_traits::move(_data[ix]);
+            new (_new_data + ix) T(dynamic_array_traits::move(_data[ix]));
 
         // de allocate old data
         _alloc.deallocate(_data, capacity());
-        _data = reinterpret_cast<T*>(_new_data);
+        _data = _new_data;
         _cap = new_size;
     }
 
@@ -235,8 +232,8 @@ public:
             // to the dynamic array
             const T vv = v;
             alloc_(true);
-            _data[_current++] = vv;
-        } else _data[_current++] = v;
+            new(_data + _current++) T(vv);
+        } else new(_data + _current++) T(v);;
     }
 
     void push_back(T && v) noexcept {
@@ -245,31 +242,31 @@ public:
             // to the dynamic array
             const T vv = dynamic_array_traits::move(v);
             alloc_(true);
-            _data[_current++] = dynamic_array_traits::move(vv);
-        } else _data[_current++] = dynamic_array_traits::move(v);
+            new(_data + _current++) T(dynamic_array_traits::move(vv));
+        } else new(_data + _current++) T(dynamic_array_traits::move(v));
     }
 
-    template<typename... ARGS>
-    int emplace_back(ARGS&&... args) noexcept {
+    template<class... Args>
+    iterator emplace(const_iterator pos, Args&&... args) {
+        return new (pos) T(dynamic_array_traits::forward<Args>(args)...);
+    }
+
+    template<typename... Args>
+    reference emplace_back(Args&&... args) {
         if(int(_current)>int(_cap-1)) alloc_(true);
-        auto * mem_loc = &_data[_current++];
-        new (mem_loc) T(dynamic_array_traits::forward<ARGS>(args)...);
-        return _current-1;
+        new (_data + _current++) T(dynamic_array_traits::forward<Args>(args)...);
+        return back();
     }
 
-    void push_back(const_dynamic_array_ref container) noexcept {
-        const int count = container.size();
-        for (int ix = 0; ix < count; ++ix) this->push_back(container[ix]);
+    void push_back(const_dynamic_array_ref other) {
+        const auto count = other.size();
+        for (int ix = 0; ix < count; ++ix) push_back(other[ix]);
     }
 
-    void pop_back() noexcept {
-        if(_current < (_cap>>1)) alloc_(false);
+    void pop_back() {
         if(_current==0) return;
         _data[_current--].~T();
-    }
-
-    void move(index idx) noexcept {
-        if(idx < capacity()) _current = idx;
+        if(_current < (_cap>>1)) alloc_(false);
     }
 
     void drain() noexcept {
@@ -288,12 +285,27 @@ public:
     Alloc get_allocator() const noexcept { return Alloc(_alloc); }
     T* data() noexcept { return _data; }
     const T* data() const noexcept { return _data; }
-    T& back() noexcept { return _data[_current-1]; }
+    reference back() noexcept { return _data[_current-1]; }
+    reference front() noexcept { return _data[0]; }
+    const_reference back() const noexcept { return _data[_current-1]; }
+    const_reference front() const noexcept { return _data[0]; }
     bool empty() noexcept { return _current==0; }
     index size() const noexcept { return _current; }
     index capacity() const noexcept { return _cap; }
-    const T* begin() const noexcept {return _data;}
-    const T* end() const noexcept {return _data + size();}
-    T* begin() noexcept {return _data;}
-    T* end()  noexcept {return _data + size();}
+    const_iterator begin() const noexcept {return _data;}
+    const_iterator end() const noexcept {return _data + size();}
+    iterator begin() noexcept {return _data;}
+    iterator end()  noexcept {return _data + size();}
 };
+
+template<class T, class Alloc>
+bool operator==(const dynamic_array<T,Alloc>& lhs,
+                const dynamic_array<T,Alloc>& rhs ) {
+    const bool equals_sizes = lhs.size()==rhs.size();
+    if(!equals_sizes) return false;
+    for (int ix = 0; ix < lhs.size(); ++ix) {
+        if(!(lhs[ix]==rhs[ix]))
+            return false;
+    }
+    return true;
+}

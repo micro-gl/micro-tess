@@ -16,8 +16,8 @@
 float t = 0;
 
 template<typename item_type>
-using container = static_array<item_type, 100>;
-//using container = dynamic_array<item_type>;
+//using container = static_array<item_type, 100>;
+using container = dynamic_array<item_type>;
 //using container = std::vector<item_type>;
 
 template <typename number>
