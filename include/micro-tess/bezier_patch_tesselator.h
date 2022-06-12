@@ -100,7 +100,7 @@ namespace microtess {
                             evaluateBiQuadraticSurface(u,v, meshPoints, channels, p);
                         else if (type==patch_type::BI_CUBIC)
                             evaluateBiCubicSurface(u,v, meshPoints, channels, p);
-                        else return;
+                        else return 0;
                         //int idx = i * vSamples + j;
                         for (int jx = 0; jx < channels; ++jx)
                             out_vertices_attributes.push_back(p[jx]);
