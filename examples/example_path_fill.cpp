@@ -101,13 +101,14 @@ path_t<number> path_rects() {
 template <typename number>
 path_t<number> path_test() {
     path_t<number> path{};
+    using v = microtess::vec2<number>;
     int div=32;
 //    t+=0.01;
     t=137.999039f;
-    path.linesTo({{100,100}, {300,100}, {300, 300}, {100,300}});
-    vertex2<number> start{22.0f, 150.0f - 0.002323204};
+    path.linesTo2(100,100, 300,100, 300, 300, 100,300);
+    v start{22.0f, 150.0f - 0.002323204};
     path.moveTo(start);
-    path.linesTo({start, {300,120.002323204-t}, {300, 300}, {100,300}});
+    path.linesTo3(start, v{300,120.002323204-t}, v{300, 300}, v{100,300});
     path.moveTo({200, 200});
     path.lineTo({300,10});
 
@@ -170,8 +171,8 @@ int main() {
 //        static auto path = path_star_2<number>();
 //        static auto path = path_star<number>();
 //        static auto path = path_rects<number>();
-        auto path = path_arc_animation<number>();
-//        static auto path = path_test<number>();
+//        auto path = path_arc_animation<number>();
+        static auto path = path_test<number>();
 
         render_path(path);
     };

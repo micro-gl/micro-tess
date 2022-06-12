@@ -12,27 +12,31 @@
 #include <micro-tess/vec3.h>
 
 template <typename number>
-microtess::vec3<number>* bi_cubic_1(){
-    return new microtess::vec3<number>[4 * 4] {
-            {1.0f,     0.0f,    0.0f},
-            {170.66f,  0.0f,    0.0f},
-            {341.333f, 0.0f,    0.0f},
-            {512.0f,   0.0f,    0.0f},
+number * bi_cubic_1(){
+    return new number[4 * 4 * 2] {
+            // row 0
+            1.0f,     0.0f,
+            170.66f,  0.0f,
+            341.333f, 0.0f,
+            512.0f,   0.0f,
 
-            {1.0f,     170.66f, 0.0f},
-            {293.44f,  162.78f, 0.0f},
-            {746.68f,  144.65f, 0.0f},
-            {512.0f,   170.66f, 0.0f},
+            // row 1
+            1.0f,     170.66f,
+            293.44f,  162.78f,
+            746.68f,  144.65f,
+            512.0f,   170.66f,
 
-            {1.0f,     341.33f, 0.0f},
-            {383.12f,  327.69f, 0.0f},
-            {1042.79f, 296.31f, 0.0f},
-            {512.0f,   341.33f, 0.0f},
+            // row 2
+            1.0f,     341.33f,
+            383.12f,  327.69f,
+            1042.79f, 296.31f,
+            512.0f,   341.33f,
 
-            {1.0f,     512.0f,  0.0f},
-            {170.66f,  512.0f,  0.0f},
-            {341.333f, 512.0f,  0.0f},
-            {512.0f,   512.0f,  0.0f}
+            // row 3
+            1.0f,     512.0f,
+            170.66f,  512.0f,
+            341.333f, 512.0f,
+            512.0f,   512.0f,
     };
 }
 
@@ -53,7 +57,7 @@ int main() {
     constexpr int samples = 20;
     constexpr bool debug = true;
 
-    auto draw_bezier_patch = [&](vertex3<number>* mesh) {
+    auto draw_bezier_patch = [&](number* mesh) {
         // Algorithm START
         // output vertices attributes
         dynamic_array<number> output_attrib;
@@ -68,33 +72,37 @@ int main() {
                 decltype(output_indices)>;
         using vertex=microtess::vec2<number>;
         // compute algorithm
-        tess::compute(mesh, 4, 4, samples, samples, output_attrib,
-                      output_indices, output_indices_type, 0, 0, 1, 1);
+        auto window_size = tess::compute<microtess::patch_type::BI_CUBIC>(
+                mesh, 2,
+                samples, samples,
+                true, true,
+                output_attrib,output_indices, output_indices_type,
+                0, 0, 1, 1);
         // Algorithm END
 
         canvas.clear({255, 255, 255, 255});
-
+        int I_X = 0, I_Y=1, I_U=2, I_V=3;
         // walk on pieces of triangles with inverting because it is a TRIANGLES_STRIP
         bool even = true;
         for (index ix = 0; ix < output_indices.size()-2; ++ix, even=!even) { // we alternate order inorder to preserve CCW or CW,
-            index first_index   = (even ? output_indices[ix + 0] : output_indices[ix + 2]) * tess::ATTRIBUTES_COUNT;
-            index second_index  = (even ? output_indices[ix + 1] : output_indices[ix + 1]) * tess::ATTRIBUTES_COUNT;
-            index third_index   = (even ? output_indices[ix + 2] : output_indices[ix + 0]) * tess::ATTRIBUTES_COUNT;
+            index first_index   = (even ? output_indices[ix + 0] : output_indices[ix + 2]) * window_size;
+            index second_index  = (even ? output_indices[ix + 1] : output_indices[ix + 1]) * window_size;
+            index third_index   = (even ? output_indices[ix + 2] : output_indices[ix + 0]) * window_size;
 
-            vertex p1=vertex{output_attrib[first_index + tess::I_X], output_attrib[first_index + tess::I_Y]};
-            vertex p2=vertex{output_attrib[second_index + tess::I_X], output_attrib[second_index + tess::I_Y]};
-            vertex p3=vertex{output_attrib[third_index + tess::I_X], output_attrib[third_index + tess::I_Y]};
+            vertex p1=vertex{output_attrib[first_index + I_X], output_attrib[first_index + I_Y]};
+            vertex p2=vertex{output_attrib[second_index + I_X], output_attrib[second_index + I_Y]};
+            vertex p3=vertex{output_attrib[third_index + I_X], output_attrib[third_index + I_Y]};
 
             canvas.drawTriangle<>(
                     tex_uv,
-                    p1.x, p1.y, output_attrib[first_index  + tess::I_U], output_attrib[first_index  + tess::I_V],
-                    p2.x, p2.y, output_attrib[second_index + tess::I_U], output_attrib[second_index + tess::I_V],
-                    p3.x, p3.y, output_attrib[third_index  + tess::I_U], output_attrib[third_index  + tess::I_V]);
+                    p1.x, p1.y, output_attrib[first_index  + I_U], output_attrib[first_index  + I_V],
+                    p2.x, p2.y, output_attrib[second_index + I_U], output_attrib[second_index + I_V],
+                    p3.x, p3.y, output_attrib[third_index  + I_U], output_attrib[third_index  + I_V]);
             if(debug)
                 canvas.drawTriangleWireframe<number>(color_t{0,0,0,255},
-                                               {output_attrib[first_index + tess::I_X], output_attrib[first_index + tess::I_Y]},
-                                               {output_attrib[second_index + tess::I_X], output_attrib[second_index + tess::I_Y]},
-                                               {output_attrib[third_index + tess::I_X], output_attrib[third_index + tess::I_Y]});
+                                               {output_attrib[first_index + I_X], output_attrib[first_index + I_Y]},
+                                               {output_attrib[second_index + I_X], output_attrib[second_index + I_Y]},
+                                               {output_attrib[third_index + I_X], output_attrib[third_index + I_Y]});
         }
     };
 
