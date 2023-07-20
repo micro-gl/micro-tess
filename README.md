@@ -1,3 +1,7 @@
+<div align='center'>
+<img src='microtess-512-logo-rounded.png' style='height: 200px;'/>
+</div>
+
 # micro{tess}
 
 **Fast**, **Slim**, **Embeddable**, **Allocator-aware**, **Headers files** only **`C++11`** geometry tesselation  
