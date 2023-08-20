@@ -10,6 +10,36 @@ library for vector graphics, that can run on any 32/64 bits computer with or wit
 
 check out our website at [micro-gl.github.io/docs/micro-tess/](https://micro-gl.github.io/docs/micro-tess)
 
+## Features
+
+> **Language** &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- **`C++11`**, does not use any **`STL`** library and **standard library**.
+- **Headers only** library
+- Most functions are templates, which means you compile only what is used
+- Compile-time polymorphism (no runtime virtual methods)
+- Support for 32 bits and 64 bits
+- Self contained and modular.
+
+> **Geometry** &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+- Tesselation in any precision, fixed point precision, float or double.
+- **BiQuadratic**/**BiCubic** **Bezier Patch** triangle Tessellation
+- **Quadratic**/**Cubic** **Bezier** curve divider
+- **Elliptic Arc Divider**
+- **Ear Clipping** Tessellation for Simple (convex or concave) polygons
+- **X/Y Montone** Tessellation for Monotone polygons
+- **Fan Triangulation** for Convex polygons
+- **Stroke Tessellation** with **dashes** (also supported with Path object)
+- **Fill Tessellation** for any type of multi polygons using **even-odd** and **non-zero** rule
+- **Path** object to easily define **vector graphics** and **tessellate** them using **fill** or **stroke**
+
+> **Extra** &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Packed with fixed precision numbers `Q` class
+- Computes boundary information for quick AA.
+- Packed with triangles iterator for regular, fan and strip batch triangles
+- Packed with many working examples
+
+
 ## Installing `micro{tess}`
 `micro-tess` is a headers only library, which gives the following install possibilities:
 1. Using `cmake` to invoke the `install` target, that will copy everything in your system via
