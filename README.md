@@ -2,7 +2,7 @@
 <img src='microtess-512-logo-rounded.png' style='height: 200px;'/>
 </div>
 
-# micro{tess}
+# micro{tess} [![compile](https://github.com/micro-gl/micro-tess/actions/workflows/compile.yml/badge.svg)](https://github.com/micro-gl/micro-tess/actions/workflows/compile.yml)
 
 **Fast**, **Slim**, **Embeddable**, **Allocator-aware**, **Headers files** only **`C++11`** geometry tesselation  
 library for vector graphics, that can run on any 32/64 bits computer with or without **FPU**.  
