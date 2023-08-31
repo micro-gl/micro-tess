@@ -6,6 +6,7 @@
 #include <microgl/bitmaps/bitmap.h>
 #include <microgl/pixel_coders/RGB888_PACKED_32.h>
 #include <microgl/samplers/flat_color.h>
+#include <microgl/samplers/linear_gradient_2_colors.h>
 
 #include <micro-tess/path.h>
 #include <micro-tess/std_rebind_allocator.h>
@@ -128,6 +129,7 @@ int main() {
     using index = unsigned int;
     using Canvas24 = canvas<bitmap<RGB888_PACKED_32>, CANVAS_OPT_64_BIT_FREE>;
     sampling::flat_color<> color_red {{255,0,255,255}};
+    sampling::linear_gradient_2_colors<315> gradient{{220,0,0}, {141	,53	,255	}};
     Canvas24 canvas(640, 480);
     // microgl drawing setup END
 
@@ -141,9 +143,10 @@ int main() {
                 microtess::tess_quality::prettier_with_extra_vertices,
                 true, debug);
 
-        canvas.clear({255, 255, 255, 255});
+//        canvas.clear({255, 255, 255, 255});
+        canvas.clear({60, 60, 60, 255});
         canvas.drawTriangles<blendmode::Normal, porterduff::FastSourceOverOnOpaque, true>(
-                color_red,
+                gradient,
                 matrix_3x3<number>::identity(),
                 buffers.output_vertices.data(),
                 static_cast<vertex2<number> *>(nullptr),
@@ -153,26 +156,27 @@ int main() {
                 buffers.output_indices_type,
                 255);
 
-        if(debug) {
+        if(true) {
             canvas.drawTrianglesWireframe(
-                   {0, 0, 0, 255}, matrix_3x3<number>::identity(),
+                   {38, 38, 38, 255},
+                   matrix_3x3<number>::identity(),
                    buffers.output_vertices.data(),
                    buffers.output_indices.data(),
                    buffers.output_indices.size(),
                    buffers.output_indices_type,
-                   40);
-            for (index ix = 0; ix < buffers.DEBUG_output_trapezes.size(); ix+=4)
-                canvas.drawWuLinePath<number>({0, 0, 0, 255},
-                                 &buffers.DEBUG_output_trapezes[ix], 4, true);
+                   50);
+//            for (index ix = 0; ix < buffers.DEBUG_output_trapezes.size(); ix+=4)
+//                canvas.drawWuLinePath<number>({255, 255, 255, 255},
+//                                 &buffers.DEBUG_output_trapezes[ix], 4, true);
         }
     };
 
     auto render = [&](void*, void*, void*) -> void {
 //        static auto path = path_star_2<number>();
-//        static auto path = path_star<number>();
+        static auto path = path_star<number>();
 //        static auto path = path_rects<number>();
 //        auto path = path_arc_animation<number>();
-        static auto path = path_test<number>();
+//        static auto path = path_test<number>();
 
         render_path(path);
     };

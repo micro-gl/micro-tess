@@ -31,7 +31,7 @@ int main() {
 
     // microgl drawing setup START
     using Canvas24= canvas<bitmap<coder::RGB888_PACKED_32>>;
-    sampling::flat_color<> red{{255, 0, 0, 255}};
+    sampling::flat_color<> red{{226, 63, 151	, 255}};
     Canvas24 canvas(W, H);
     // microgl drawing setup END
 
@@ -53,15 +53,16 @@ int main() {
         curve_divider::compute(curve.data(), output_vertices, algo_type, curve_type);
         // Algorithm END
 
-        canvas.clear({255,255,255,255});
+        canvas.clear({60,60,60,255});
         canvas.drawWuLinePath(
-                {0,0,0,255},
+                {255,255,255,255},
                 output_vertices.data(), output_vertices.size(),
                 false);
 
         for (auto & p : output_vertices)
             canvas.drawCircle<blendmode::Normal, porterduff::FastSourceOverOnOpaque, true>(
-                    red, red, p.x, p.y, number{5}, number{0});
+                    red, red, p.x, p.y,
+                    number{10}, number{0});
     };
 
     auto render = [&](void*, void*, void*) -> void {

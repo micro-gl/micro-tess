@@ -4,12 +4,15 @@
 
 # micro{tess}
 
-**Fast**, **Slim**, **Embeddable**, **Allocator-aware**, **Headers files** only **`C++11`** geometry tesselation  
-library for vector graphics, that can run on any 32/64 bits computer with or without **FPU**.  
+**Fast**, **Slim**, **Embeddable**, **Allocator-aware**, **Headers files** only **`C++11`** geometry tesselation library for **vector graphics**, that can run on any 32/64 bits computer with or without **FPU**.  
 **No standard library required**.
 
 check out our website at [micro-gl.github.io/docs/micro-tess/](https://micro-gl.github.io/docs/micro-tess)
 
+<div align='center'>
+<img src='assets/intro.png' style='opacity: 0.75; max-height: 200'/>
+</div>
+ 
 ## Features
 
 > **Language** &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;

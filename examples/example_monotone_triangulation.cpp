@@ -1,5 +1,6 @@
 #define MICROGL_USE_EXTERNAL_MICRO_TESS
 #include "src/example.h"
+#include <microgl/samplers/linear_gradient_2_colors.h>
 #include <microgl/canvas.h>
 #include <microgl/bitmaps/bitmap.h>
 #include <microgl/pixel_coders/RGB888_PACKED_32.h>
@@ -127,6 +128,7 @@ int main() {
     // microgl drawing setup START
     using Canvas24= canvas<bitmap<coder::RGB888_PACKED_32>>;
     sampling::flat_color<> color_red{{255,0,0,255}};
+    sampling::linear_gradient_2_colors<315> gradient{{220,0,0}, {141	,53	,255	}};
     Canvas24 canvas(W, H);
     float t = 0;
 
@@ -158,9 +160,9 @@ int main() {
                      allocator);
 
         // draw triangles batch
-        canvas.clear({255,255,255,255});
+        canvas.clear({60,60,60,255});
         canvas.drawTriangles(
-                color_red,
+                gradient,
                 matrix_3x3<number>::identity(),
                 polygon.data(),
                 (vertex2<number> *)nullptr,
@@ -172,7 +174,7 @@ int main() {
 
         // draw triangulation
         canvas.drawTrianglesWireframe(
-                {0,0,0,255},
+                {0,0,0,50},
                 matrix_3x3<number>::identity(),
                 polygon.data(),
                 output_indices.data(),
