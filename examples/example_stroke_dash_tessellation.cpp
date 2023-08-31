@@ -159,7 +159,7 @@ int main() {
 //            microtess::stroke_line_join::miter,
 //            microtess::stroke_line_join::none,
                 8,
-                std::initializer_list<int>{50, 50}, t,
+                std::initializer_list<int>{10, 10}, t,
                 path.data(),
                 path.size(),
                 output_vertices,
@@ -169,7 +169,7 @@ int main() {
                 &output_boundary_buffer);
 
         // draw triangles batch
-        canvas.clear({60,60,60,255});
+        canvas.clear({70,70,70,255});
         canvas.drawTriangles<blendmode::Normal, porterduff::FastSourceOverOnOpaque, true>(
                 gradient,
                 matrix_3x3<number>::identity(),
@@ -182,7 +182,7 @@ int main() {
                 255/1
         );
 
-//        return;
+        return;
         canvas.drawTrianglesWireframe(
                 {0,0,0,50},
                 matrix_3x3<number>::identity(),
@@ -203,7 +203,8 @@ int main() {
 //        static auto path = path_line<number>();
 //        static auto path = path_3<number>();
 
-        render_path(path, 40.0f, false);
+        render_path(path, 2.50f, false);
+//        render_path(path, 15.0f, false);
 //        render_path(path, 40.0f, false);
 //        render_path(path, 40.0f, true);
 //        render_path(path, 50.0f, false);
