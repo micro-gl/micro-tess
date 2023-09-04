@@ -2,7 +2,10 @@
 <img src='microtess-512-logo-rounded.png' style='height: 200px;'/>
 </div>
 
-# micro{tess} [![compile](https://github.com/micro-gl/micro-tess/actions/workflows/compile.yml/badge.svg)](https://github.com/micro-gl/micro-tess/actions/workflows/compile.yml)
+# micro{tess}
+[![mac-os](https://github.com/micro-gl/micro-tess/actions/workflows/compile_macos.yml/badge.svg)](https://github.com/micro-gl/micro-tess/actions/workflows/compile_macos.yml)
+[![ubuntu](https://github.com/micro-gl/micro-tess/actions/workflows/compile_ubuntu.yml/badge.svg)](https://github.com/micro-gl/micro-tess/actions/workflows/compile_ubuntu.yml)
+[![windows](https://github.com/micro-gl/micro-tess/actions/workflows/compile_windows.yml/badge.svg)](https://github.com/micro-gl/micro-tess/actions/workflows/compile_windows.yml)
 
 **Fast**, **Slim**, **Embeddable**, **Allocator-aware**, **Headers files** only **`C++11`** geometry tesselation library for **vector graphics**, that can run on any 32/64 bits computer with or without **FPU**.  
 **No standard library required**.
@@ -12,7 +15,7 @@ check out our website at [micro-gl.github.io/docs/micro-tess/](https://micro-gl.
 <div align='center'>
 <img src='assets/intro.png' style='opacity: 0.75; max-height: 200'/>
 </div>
- 
+
 ## Features
 
 > **Language** &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
