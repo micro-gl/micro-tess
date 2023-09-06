@@ -148,8 +148,8 @@ container<vertex2<number>> poly_3() {
 }
 
 int main() {
-    using number = float;
-//    using number = Q<12>;
+//    using number = float;
+    using number = Q<12>;
 
     using Bitmap24= bitmap<coder::RGB888_PACKED_32>;
     using Canvas24= canvas<Bitmap24>;
