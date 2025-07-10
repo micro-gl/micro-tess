@@ -19,6 +19,8 @@ add_subdirectory(libs/micro-gl)
 
 find_package(SDL2)
 find_package(microgl CONFIG)
+include_directories("/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1")
+include_directories("/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include")
 
 if(DEFINED SDL2_FOUND AND DEFINED microgl_FOUND)
     # micro-tess target should be because this file is included in the parent folder
@@ -26,6 +28,7 @@ if(DEFINED SDL2_FOUND AND DEFINED microgl_FOUND)
     set(SOURCES
             example_bezier_patch.cpp
             example_path_fill.cpp
+            example_path_fill_exp.cpp
             example_path_stroke.cpp
             example_ear_clipping.cpp
             example_monotone_triangulation.cpp
@@ -40,7 +43,7 @@ if(DEFINED SDL2_FOUND AND DEFINED microgl_FOUND)
     set(SOURCES_SHARED
             libs/stb_image/stb_image.cpp
             src/Resources.cpp
-            )
+    )
 
     foreach( testsourcefile ${SOURCES} )
         # I used a simple string replace, to cut off .cpp.

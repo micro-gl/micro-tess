@@ -108,8 +108,8 @@ chunker_t<number> box_1() {
 }
 
 int main() {
-    using number = float;
-//    using number = double;
+//    using number = float;
+    using number = double;
 //    using number = Q<2>;
 //    using number = Q<4>;
 //    using number = Q<8>;

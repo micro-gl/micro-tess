@@ -116,7 +116,7 @@ public:
                 _value(convert_runtime_variant(q_val, q_precision, P)) {}
     // this is Q<0>, so we promote it to Q<P>
     Q(const unsigned val) : _value(integer(val)<<P) {}
-    Q(const signed val) : _value(val<<P) {}
+    Q(const signed val) : _value(integer(val)<<P) {}
     Q(const float val) : _value(integer(val * float(1u<<P))) {}
     Q(const double val) : _value(integer(val * double(1u<<P))) {}
 
